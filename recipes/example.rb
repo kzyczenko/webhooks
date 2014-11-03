@@ -1,5 +1,5 @@
 #
-# Cookbook Name:: webhooks
+# Cookbook Name:: example
 # Recipe:: default
 #
 # Copyright 2014, Brian Stajkowski
