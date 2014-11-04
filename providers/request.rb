@@ -6,17 +6,16 @@ require 'uri'
 #Get action
 action :get do
 
-  #Check if endpoint is accessable
-  if @current_resource.accessable
+  #Check if endpoint is accessible
+  if @current_resource.accessible
     #Converge
-    converge_by("Initiating Post of #{ @current_resource.operation_name }")
+    converge_by("Initiating Post of #{ @current_resource.operation_name }") do
       execute_request("get")
     end
   else
     #Otherwise alert and do nothing
     Chef::Log.info "#{ @current_resource } does not have connectivity, please check connectivity."
   end
-
 
 end
 
@@ -25,10 +24,10 @@ end
 #Put action
 action :put do
 
-  #Check if endpoint is accessable
-  if @current_resource.accessable
+  #Check if endpoint is accessible
+  if @current_resource.accessible
     #Converge
-    converge_by("Initiating Post of #{ @current_resource.operation_name }")
+    converge_by("Initiating Post of #{ @current_resource.operation_name }") do
       execute_request("put")
     end
   else
@@ -43,10 +42,10 @@ end
 #Post action
 action :post do
 
-  #Check if endpoint is accessable
-  if @current_resource.accessable
+  #Check if endpoint is accessible
+  if @current_resource.accessible
     #Converge
-    converge_by("Initiating Post of #{ @current_resource.operation_name }")
+    converge_by("Initiating Post of #{ @current_resource.operation_name }") do
       execute_request("post")
     end
   else
@@ -60,7 +59,7 @@ end
 
 #Must load current resource state - nothing current
 def load_current_resource
-  @current_resource = Chef::Resource::WebhooksHttp.new(@new_resource.name)
+  @current_resource = Chef::Resource::WebhooksRequest.new(@new_resource.name)
 
   #Not Used
 	@current_resource.operation_name(@new_resource.operation_name)
@@ -86,7 +85,7 @@ def load_current_resource
 	@current_resource.proxy_password(@new_resource.proxy_password)
 
   #Check that we have connectivity to the resource and set :accessable to true
-
+  @current_resource.accessible = true
 end
 
 
@@ -109,27 +108,35 @@ def execute_request(action)
   begin
 
     #Begin the request and grab the response
-    response = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https', :read_timeout => @current_resource.read_timeout ) do |http| #Use ssl if scheme is set for it
+    response = Net::HTTP.start(uri.host, @current_resource.uri_port, :use_ssl => uri.scheme == 'https', :read_timeout => @current_resource.read_timeout ) do |http| #Use ssl if scheme is set for it
 
+      Chef::Log.info "Setting up request for #{ uri.scheme }://#{ uri.host }#{ uri.path }."
       #Check what type of request
       case action
         when "post"
+          Chef::Log.info "Setting up action #{ action }."
           req = Net::HTTP::Post.new(uri.path)   #let's post
         when "put"
+          Chef::Log.info "Setting up action #{ action }."
           req = Net::HTTP::Put.new(uri.path)    #let's put
         when "get"
+          Chef::Log.info "Setting up action #{ action }."
           req = Net::HTTP::Get.new(uri.path)    #let's get
       end
 
       #Check if we are going to use basic auth
       if @current_resource.use_basic_auth
         #Set username and password
+        Chef::Log.info "Setting up basic authentication."
         req.basic_auth(uri.user, uri.password)
       end
 
       #If we are posting or puting then check if we have post_data to put or post
       if (action == "post" || action == "put") && !@current_resource.post_data.nil?
+        Chef::Log.info "Setting form data for #{ action }."
         req.set_form_data( @current_resource.post_data )  #set the form data
+      elsif action == "get"  #Do Nothing
+        #Don't do anything
       else
         #Else WTF?
         Chef::Log.info "You want to #{ action } but nothing is set in :post_data"
@@ -137,6 +144,7 @@ def execute_request(action)
 
       #Now we populate the headers, oh fun
       if !@current_resource.header_data.nil?
+        Chef::Log.info "Populating headers."
         @current_resource.header_data.each do |header,value|
           req["#{ header }"] = value
         end
@@ -150,22 +158,27 @@ def execute_request(action)
     #Check if we received a redirect
     if response == Net::HTTPRedirection && @current_resource.follow_redirect
       #If so, let's reset the uri and follow it if :follow_redirect is on
-      @current_resource.uri = response['location']
+      Chef::Log.info "Redirection detected and following redirection."
+      @current_resource.uri = response.location
       setup_uri  #Reset URI
       execute_request(action)  #Execute request again
     end
 
     #Check our response code and make sure it's in our array of expectations
-    if @current_resource.expected_response_codes.include?( response.code ) #Check the array of response codes
+    if !@current_resource.expected_response_codes.to_s.include?( "#{ response.code }" ) #Check the array of response codes
       raise "Received an unexpected HTTP Response code #{ response.code }."
     else
-      Chef::Log.info "Webhooks Operation Successful: #{ @current_resource.operation_name }!"
-      node["webhooks"]["#{ action }_response"] = response['body']
+      Chef::Log.info "Webhooks Operation Successful: #{ @current_resource.operation_name }! Response Code #{ response.code }."
+      #If we are to save the response, let's do it
+      if @current_resource.save_response
+        Chef::Log.info "Saving Response."
+        node.override["webhooks"]["#{ action }_response"] = response.body
+      end
     end
 
   #If we get an error, let's be nice and print it for people to ask why, oh why did my shit break
-  rescue Exception => exception_msg #Throw execption
-    Chef::Log.info "Error encountered: #{ exeception_msg.message }."
+  rescue Exception => exception_msg #Throw exception
+    Chef::Log.info "Error encountered: #{ exception_msg.message }."
   end
 
 end
@@ -181,6 +194,9 @@ def setup_uri
   #Check if using ssl
   if @current_resource.use_ssl
     compiled_uri = "https://"
+    if @current_resource.uri_port == 80
+      @current_resource.uri_port(443)
+    end
   end
 
   #Check if we are using authentication
@@ -199,7 +215,7 @@ def setup_uri
   if @current_resource.uri == nil
     Chef::Log.info "You did not supply any value for URI. Please change and re-run."
   else
-    compiled_uri = "#{ compiled_uri }@#{ @current_resource.uri }:#{ @current_resource.port }"
+    compiled_uri = "#{ compiled_uri }@#{ @current_resource.uri }"
   end
 
   #Return the value

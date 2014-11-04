@@ -66,5 +66,5 @@ platforms:
 suites:
   - name: default
     run_list:
-      - recipe[php5-fpm::example_hook]
+      - recipe[webhooks::example]
     attributes:

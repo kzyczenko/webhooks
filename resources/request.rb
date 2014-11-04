@@ -28,4 +28,4 @@ attribute :proxy_port, :kind_of => Integer, :required => false, :default => nil
 attribute :proxy_username, :kind_of => String, :required => false, :default => nil
 attribute :proxy_password, :kind_of => String, :required => false, :default => nil
 
-attr_accessor :accessable
+attr_accessor :accessible
