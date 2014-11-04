@@ -147,12 +147,20 @@ def execute_request(action)
 
     end
 
+    #Check if we received a redirect
+    if response == Net::HTTPRedirection && @current_resource.follow_redirect
+      #If so, let's reset the uri and follow it if :follow_redirect is on
+      @current_resource.uri = response['location']
+      setup_uri  #Reset URI
+      execute_request(action)  #Execute request again
+    end
 
     #Check our response code and make sure it's in our array of expectations
     if @current_resource.expected_response_codes.include?( response.code ) #Check the array of response codes
       raise "Received an unexpected HTTP Response code #{ response.code }."
     else
       Chef::Log.info "Webhooks Operation Successful: #{ @current_resource.operation_name }!"
+      node["webhooks"]["#{ action }_response"] = response['body']
     end
 
   #If we get an error, let's be nice and print it for people to ask why, oh why did my shit break
