@@ -6,15 +6,9 @@ require 'uri'
 #Get action
 action :get do
 
-  #Check if endpoint is accessible
-  if @current_resource.accessible
-    #Converge
-    converge_by("Initiating Post of #{ @current_resource.operation_name }") do
-      execute_request("get")
-    end
-  else
-    #Otherwise alert and do nothing
-    Chef::Log.info "#{ @current_resource } does not have connectivity, please check connectivity."
+  #Converge
+  converge_by("Initiating GET of #{ @current_resource.operation_name }") do
+    execute_request("get")
   end
 
 end
@@ -24,15 +18,9 @@ end
 #Put action
 action :put do
 
-  #Check if endpoint is accessible
-  if @current_resource.accessible
-    #Converge
-    converge_by("Initiating Post of #{ @current_resource.operation_name }") do
-      execute_request("put")
-    end
-  else
-    #Otherwise alert and do nothing
-    Chef::Log.info "#{ @current_resource } does not have connectivity, please check connectivity."
+  #Converge
+  converge_by("Initiating PUT of #{ @current_resource.operation_name }") do
+    execute_request("put")
   end
 
 end
@@ -42,15 +30,9 @@ end
 #Post action
 action :post do
 
-  #Check if endpoint is accessible
-  if @current_resource.accessible
-    #Converge
-    converge_by("Initiating Post of #{ @current_resource.operation_name }") do
-      execute_request("post")
-    end
-  else
-    #Otherwise alert and do nothing
-    Chef::Log.info "#{ @current_resource } does not have connectivity, please check connectivity."
+  #Converge
+  converge_by("Initiating POST of #{ @current_resource.operation_name }") do
+    execute_request("post")
   end
 
 end
@@ -84,8 +66,6 @@ def load_current_resource
 	@current_resource.proxy_username(@new_resource.proxy_username)
 	@current_resource.proxy_password(@new_resource.proxy_password)
 
-  #Check that we have connectivity to the resource and set :accessable to true
-  @current_resource.accessible = true
 end
 
 
@@ -185,7 +165,7 @@ end
 
 
 
-#Method for settting up URI
+#Method for setting up the URI
 def setup_uri
 
   #Start compiled uri
@@ -206,7 +186,7 @@ def setup_uri
     if @current_resource.basic_auth_username == nil || @current_resource.basic_auth_password == nil
       Chef::Log.info "You set :use_basic_auth to true but did not supply any credentials."
     else
-      compiled_uri = "#{ compiled_uri }#{ @current_resource.basic_auth_username }:#{ @current_resource.basic_auth_password }@"
+      compiled_uri = "#{ compiled_uri }#{ @current_resource.basic_auth_username }:#{ @current_resource.basic_auth_password }"
     end
 
   end
