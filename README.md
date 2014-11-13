@@ -12,7 +12,7 @@ Maybe you are using Chef-Solo and need an API to store node configuration or oth
 >CenOS 6.x and above
 >Fedora 20
 >#### Planned Improvements
->0.1.1 - Enabled Proxy
+>0.1.2 - Enable Proxy
 
 No additional cookboks are required.
 <br />
@@ -20,7 +20,7 @@ No additional cookboks are required.
 <br />
 #Attributes
 _____
-### php5-fpm::default
+### webhooks::default
 <br />
 <table>
   <tr>
