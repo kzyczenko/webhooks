@@ -21,7 +21,7 @@ webhooks_request "Test Post" do
                 { 'value1' => '1', 'value2' => '2'}
             )
   header_data (
-                { 'header1' => '1', 'header2' => '2'}
+                { 'header1' => '1', 'header2' => '2', 'User-Agent' => 'Mozilla/5.0'}
               )
   expected_response_codes [ 200, 201 ]
   action :post

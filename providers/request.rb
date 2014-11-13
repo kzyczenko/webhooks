@@ -53,7 +53,7 @@ def load_current_resource
 	@current_resource.read_timeout(@new_resource.read_timeout)
 	@current_resource.use_ssl(@new_resource.use_ssl)
 	@current_resource.post_data(@new_resource.post_data)
-  @current_resource.header_data(@new_resource.header_data)
+    @current_resource.header_data(@new_resource.header_data)
 	@current_resource.save_response(@new_resource.save_response)
 	#Basic Authentication
 	@current_resource.use_basic_auth(@new_resource.use_basic_auth)
@@ -186,7 +186,7 @@ def setup_uri
     if @current_resource.basic_auth_username == nil || @current_resource.basic_auth_password == nil
       Chef::Log.info "You set :use_basic_auth to true but did not supply any credentials."
     else
-      compiled_uri = "#{ compiled_uri }#{ @current_resource.basic_auth_username }:#{ @current_resource.basic_auth_password }"
+      compiled_uri = "#{ compiled_uri }#{ @current_resource.basic_auth_username }:#{ @current_resource.basic_auth_password }@"
     end
 
   end
@@ -195,7 +195,7 @@ def setup_uri
   if @current_resource.uri == nil
     Chef::Log.info "You did not supply any value for URI. Please change and re-run."
   else
-    compiled_uri = "#{ compiled_uri }@#{ @current_resource.uri }"
+    compiled_uri = "#{ compiled_uri }#{ @current_resource.uri }"
   end
 
   #Return the value
