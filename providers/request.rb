@@ -98,7 +98,12 @@ def execute_request(action)
   begin
 
     #Begin the request and grab the response
-    response = Net::HTTP.start(uri.host, @current_resource.uri_port, :use_ssl => uri.scheme == 'https', :read_timeout => @current_resource.read_timeout ) do |http| #Use ssl if scheme is set for it
+    response = Net::HTTP.start(uri.host, @current_resource.uri_port, :use_ssl => uri.scheme == 'https', :verify_mode => (!@current_resource.ssl_validation && uri.scheme == 'https') ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER, :read_timeout => @current_resource.read_timeout ) do |http| #Use ssl if scheme is set for it
+
+      #If we are using ssl, check for disable of verification (self-signed certs)
+      if http.use_ssl? && !@current_resource.ssl_validation
+        Chef::Log.info "Disabled SSL Validation."
+      end
 
       Chef::Log.info "Setting up request for #{ uri.scheme }://#{ uri.host }#{ uri.path }."
       #Check what type of request
@@ -113,9 +118,6 @@ def execute_request(action)
           Chef::Log.info "Setting up action #{ action }."
           req = Net::HTTP::Get.new(uri.path)    #let's get
       end
-
-      #If we are using ssl, check for disable of verification (self-signed certs)
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl? && !@current_resource.ssl_validation
 
       #Check if we are going to use basic auth
       if @current_resource.use_basic_auth
@@ -171,7 +173,8 @@ def execute_request(action)
 
   #If we get an error, let's be nice and print it for people to ask why, oh why did my shit break
   rescue Exception => exception_msg #Throw exception
-    Chef::Log.info "Error encountered: #{ exception_msg.message }."
+    Chef::Log.fatal "Error encountered: #{ exception_msg.message }."
+    exit 1
   end
 
 end
