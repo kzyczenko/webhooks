@@ -12,6 +12,7 @@ attribute :expected_response_codes, :kind_of => Array, :required => false, :defa
 attribute :follow_redirect, :kind_of => [ TrueClass, FalseClass ], :default => false
 attribute :read_timeout, :kind_of => Integer, :required => false, :default => 60
 attribute :use_ssl, :kind_of => [ TrueClass, FalseClass ], :default => false
+attribute :ssl_validation, :kind_of => [ TrueClass, FalseClass ], :default => true
 attribute :post_data, :kind_of => Hash, :required => false, :default => nil
 attribute :header_data, :kind_of => Hash, :required => false, :default => nil
 attribute :save_response, :kind_of => [ TrueClass, FalseClass ], :default => true

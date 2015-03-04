@@ -1,14 +1,17 @@
 require 'net/http'
 require 'uri'
 
-
+use_inline_resources
 
 #Get action
 action :get do
 
   #Converge
-  converge_by("Initiating GET of #{ @current_resource.operation_name }") do
+  converge_by("Completed GET of #{ @new_resource.operation_name }") do
+
     execute_request("get")
+
+    @new_resource.updated_by_last_action(true)
   end
 
 end
@@ -19,8 +22,11 @@ end
 action :put do
 
   #Converge
-  converge_by("Initiating PUT of #{ @current_resource.operation_name }") do
+  converge_by("Completed PUT of #{ @new_resource.operation_name }") do
+
     execute_request("put")
+
+    @new_resource.updated_by_last_action(true)
   end
 
 end
@@ -31,8 +37,11 @@ end
 action :post do
 
   #Converge
-  converge_by("Initiating POST of #{ @current_resource.operation_name }") do
+  converge_by("Completed POST of #{ @new_resource.operation_name }") do
+
     execute_request("post")
+
+    @new_resource.updated_by_last_action(true)
   end
 
 end
@@ -52,8 +61,9 @@ def load_current_resource
 	@current_resource.follow_redirect(@new_resource.follow_redirect)
 	@current_resource.read_timeout(@new_resource.read_timeout)
 	@current_resource.use_ssl(@new_resource.use_ssl)
+  @current_resource.ssl_validation(@new_resource.ssl_validation)
 	@current_resource.post_data(@new_resource.post_data)
-    @current_resource.header_data(@new_resource.header_data)
+  @current_resource.header_data(@new_resource.header_data)
 	@current_resource.save_response(@new_resource.save_response)
 	#Basic Authentication
 	@current_resource.use_basic_auth(@new_resource.use_basic_auth)
@@ -103,6 +113,9 @@ def execute_request(action)
           Chef::Log.info "Setting up action #{ action }."
           req = Net::HTTP::Get.new(uri.path)    #let's get
       end
+
+      #If we are using ssl, check for disable of verification (self-signed certs)
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE if http.use_ssl? && !@current_resource.ssl_validation
 
       #Check if we are going to use basic auth
       if @current_resource.use_basic_auth

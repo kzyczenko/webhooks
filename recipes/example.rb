@@ -10,6 +10,7 @@
 webhooks_request "Test Get" do
   uri "s1n4l2n5wulz.runscope.net/"
   use_ssl true
+  ssl_validation false
   expected_response_codes [ 200, 201 ]
   action :get
 end
@@ -17,6 +18,7 @@ end
 webhooks_request "Test Post" do
   uri "s1n4l2n5wulz.runscope.net/"
   use_ssl true
+  ssl_validation false
   post_data (
                 { 'value1' => '1', 'value2' => '2'}
             )
@@ -30,6 +32,7 @@ end
 webhooks_request "Test Put" do
   uri "s1n4l2n5wulz.runscope.net/"
   use_ssl true
+  ssl_validation false
   use_basic_auth true
   basic_auth_username "test_username"
   basic_auth_password "test_password"

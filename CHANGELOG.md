@@ -1,14 +1,20 @@
 webhooks CHANGELOG
 ==================
 
-0.1.0
+0.1.2
 -----
-- stajkowski - Initial release of webhooks
+- stajkowski - Add ssl_validation attribute.  It is set to enable by default; disable it for self signed certs.
 
 - - -
 
-0.1.2
+0.1.1
 -----
 - stajkowski - Fix Documentation
+
+- - -
+
+0.1.0
+-----
+- stajkowski - Initial release of webhooks
 
 - - -
