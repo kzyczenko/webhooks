@@ -9,7 +9,7 @@ action :get do
   #Converge
   converge_by("Completed GET of #{ @new_resource.operation_name }") do
 
-    execute_request("get")
+    execute_nethttp("get")
 
     @new_resource.updated_by_last_action(true)
   end
@@ -24,7 +24,7 @@ action :put do
   #Converge
   converge_by("Completed PUT of #{ @new_resource.operation_name }") do
 
-    execute_request("put")
+    execute_nethttp("put")
 
     @new_resource.updated_by_last_action(true)
   end
@@ -39,7 +39,7 @@ action :post do
   #Converge
   converge_by("Completed POST of #{ @new_resource.operation_name }") do
 
-    execute_request("post")
+    execute_nethttp("post")
 
     @new_resource.updated_by_last_action(true)
   end
@@ -78,6 +78,19 @@ def load_current_resource
 
 end
 
+def execute_nethttp(action)
+
+  response = WebhooksNS.execute_request(action, @current_resource.uri, @current_resource.uri_port, @current_resource.expected_response_codes, @current_resource.follow_redirect,
+                             @current_resource.read_timeout, @current_resource.use_ssl, @current_resource.ssl_validation, @current_resource.post_data, @current_resource.header_data,
+                             @current_resource.use_basic_auth, @current_resource.basic_auth_username, @current_resource.basic_auth_password)
+
+  #If we are to save the response, let's do it
+  if @current_resource.save_response
+    Chef::Log.info "Saving Response."
+    node.override["webhooks"]["#{ action }_response"] = response
+  end
+
+end
 
 
 #Method for post action
