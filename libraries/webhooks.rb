@@ -8,14 +8,16 @@ class Chef::Provider::LWRPBase
     extend Chef::Mixin::ShellOut
 
     #Method for post action
-    def self.execute_request(action, url_uri, uri_port, expected_response_codes, follow_redirect, read_timeout, use_ssl,
-                        ssl_validation, post_data, header_data, use_basic_auth, basic_auth_username, basic_auth_password)
+    def self.execute_request(action=get, url_uri=nil, uri_port=80, expected_response_codes=[200], follow_redirect=false, read_timeout=60, use_ssl=false,
+                        ssl_validation=true, post_data=nil, post_json=false, post_xml=false, header_data=nil, use_basic_auth=false, basic_auth_username=nil, basic_auth_password=nil)
 
       #Complete URI
       return_uri = setup_uri(url_uri, use_ssl, use_basic_auth, basic_auth_username, basic_auth_password)
 
       #Create URI
       uri = URI.parse(return_uri)
+      new_query_ar = URI.decode_www_form(uri.query || '') << ["wmode", "opaque"]
+      uri.query = URI.encode_www_form(new_query_ar)
 
       #Check if we have get params to send off
       if action == "get" && !post_data.nil?
@@ -62,7 +64,14 @@ class Chef::Provider::LWRPBase
           #If we are posting or puting then check if we have post_data to put or post
           if (action == "post" || action == "put") && !post_data.nil?
             Chef::Log.info "Setting form data for #{ action }."
-            req.set_form_data( post_data )  #set the form data
+            if post_json
+              #if we need to post JSON
+              Chef::Log.info("Setting body to JSON")
+              req.body = JSON.dump(post_data)
+            else
+              #else normal form data
+              req.set_form_data( post_data )  #set the form data
+            end
           elsif action == "get"  #Do Nothing
             #Don't do anything
           else
@@ -89,7 +98,7 @@ class Chef::Provider::LWRPBase
           Chef::Log.info "Redirection detected and following redirection."
           url_uri = response.location
           setup_uri(url_uri, use_ssl, use_basic_auth, basic_auth_username, basic_auth_password)  #Reset URI
-          execute_request(action, url_uri, uri_port, expected_response_codes, follow_redirect, read_timeout, use_ssl, ssl_validation, post_data, header_data, use_basic_auth, basic_auth_username, basic_auth_password)  #Execute request again
+          execute_request(action, url_uri, uri_port, expected_response_codes, follow_redirect, read_timeout, use_ssl, ssl_validation, post_data, post_json, post_xml, header_data, use_basic_auth, basic_auth_username, basic_auth_password)  #Execute request again
         end
 
         #Check our response code and make sure it's in our array of expectations
@@ -97,7 +106,7 @@ class Chef::Provider::LWRPBase
           raise "Received an unexpected HTTP Response code #{ response.code }."
         else
           Chef::Log.info "Webhooks Operation Successful! Response Code #{ response.code }."
-          return response.body
+          return response
         end
 
           #If we get an error, let's be nice and print it for people to ask why, oh why did my shit break
@@ -137,6 +146,7 @@ class Chef::Provider::LWRPBase
         Chef::Log.info "You did not supply any value for URI. Please change and re-run."
       else
         compiled_uri = "#{ compiled_uri }#{ uri }"
+        Chef::Log.info "Complete URI: #{ compiled_uri}"
       end
 
       #Return the value
@@ -145,5 +155,11 @@ class Chef::Provider::LWRPBase
     end
 
   end
+
+end
+
+
+#Extend our methods to the Recipe NS
+class Chef::Recipe::WebhooksNS < Chef::Provider::LWRPBase::WebhooksNS
 
 end

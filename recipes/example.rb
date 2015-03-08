@@ -18,6 +18,7 @@ end
 webhooks_request "Test Post" do
   uri "s1n4l2n5wulz.runscope.net/"
   use_ssl true
+  post_json true
   ssl_validation false
   post_data (
                 { 'value1' => '1', 'value2' => '2'}
