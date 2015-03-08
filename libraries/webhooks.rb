@@ -16,8 +16,8 @@ class Chef::Provider::LWRPBase
 
       #Create URI
       uri = URI.parse(return_uri)
-      new_query_ar = URI.decode_www_form(uri.query || '') << ["wmode", "opaque"]
-      uri.query = URI.encode_www_form(new_query_ar)
+      new_query_ar = URI.decode_www_form(uri.query || '') #extract our parameters
+      uri.query = URI.encode_www_form(new_query_ar) #encode our findings
 
       #Check if we have get params to send off
       if action == "get" && !post_data.nil?
@@ -45,13 +45,13 @@ class Chef::Provider::LWRPBase
           case action
             when "post"
               Chef::Log.info "Setting up action #{ action }."
-              req = Net::HTTP::Post.new(uri.path)   #let's post
+              req = Net::HTTP::Post.new(uri)   #let's post
             when "put"
               Chef::Log.info "Setting up action #{ action }."
-              req = Net::HTTP::Put.new(uri.path)    #let's put
+              req = Net::HTTP::Put.new(uri)    #let's put
             when "get"
               Chef::Log.info "Setting up action #{ action }."
-              req = Net::HTTP::Get.new(uri.path)    #let's get
+              req = Net::HTTP::Get.new(uri)    #let's get
           end
 
           #Check if we are going to use basic auth
