@@ -79,6 +79,8 @@ attribute :ssl_validation, :kind_of => [ TrueClass, FalseClass ], :default => tr
 attribute :post_data, :kind_of => Hash, :required => false, :default => nil
 attribute :header_data, :kind_of => Hash, :required => false, :default => nil
 attribute :save_response, :kind_of => [ TrueClass, FalseClass ], :default => true
+attribute :post_json, :kind_of => [ TrueClass, FalseClass ], :default => false
+attribute :post_xml, :kind_of => [ TrueClass, FalseClass ], :default => false
 
 #Basic Authentication
 attribute :use_basic_auth, :kind_of => [ TrueClass, FalseClass ], :default => false
@@ -107,8 +109,9 @@ end
 
 ```
 webhooks_request "Test Post" do
-  uri "s1n4l2z.runscope.net/"
+  uri "s1n4l2z.runscope.net/gethosts?api_key=123"
   use_ssl true
+  post_json true
   post_data (
                 { 'value1' => '1', 'value2' => '2'}
             )

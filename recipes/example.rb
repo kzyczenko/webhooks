@@ -16,7 +16,7 @@ webhooks_request "Test Get" do
 end
 
 webhooks_request "Test Post" do
-  uri "s1n4l2n5wulz.runscope.net/"
+  uri "s1n4l2n5wulz.runscope.net/gethosts?api_key=123"
   use_ssl true
   post_json true
   ssl_validation false
