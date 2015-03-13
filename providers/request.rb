@@ -96,4 +96,7 @@ def execute_nethttp(action)
     node.override["webhooks"]["#{ action }_response"] = response.body
   end
 
+  node.override["webhooks"]["response_code"] = response.code
+  node.override["webhooks"]["response_message"] = response.message
+
 end

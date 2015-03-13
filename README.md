@@ -33,19 +33,31 @@ _____
     <td><tt>["webhooks"]["get_response"]</tt></td>
     <td>String</td>
     <td>Store GET Response and Parse it Later.</td>
-    <td><tt>Empty</tt></td>
+    <td><tt>Nil</tt></td>
   </tr>
   <tr>
       <td><tt>["webhooks"]["post_response"]</tt></td>
       <td>String</td>
       <td>Store POST Response and Parse it Later.</td>
-      <td><tt>Empty</tt></td>
+      <td><tt>Nil</tt></td>
   </tr>
   <tr>
       <td><tt>["webhooks"]["put_response"]</tt></td>
       <td>String</td>
       <td>Store PUT Response and Parse it Later.</td>
-      <td><tt>Empty</tt></td>
+      <td><tt>Nil</tt></td>
+  </tr>
+  <tr>
+      <td><tt>["webhooks"]["response_code"]</tt></td>
+      <td>String</td>
+      <td>Store Response Code.</td>
+      <td><tt>Nil</tt></td>
+  </tr>
+  <tr>
+      <td><tt>["webhooks"]["response_message"]</tt></td>
+      <td>String</td>
+      <td>Store Response Message.</td>
+      <td><tt>Nil</tt></td>
   </tr>
 </table>
 <br />

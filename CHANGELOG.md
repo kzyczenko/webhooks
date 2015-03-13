@@ -1,6 +1,13 @@
 webhooks CHANGELOG
 ==================
 
+0.2.0
+-----
+- stajkowski - Added to attributes default["webhooks"]["response_code"] and default["webhooks"]["response_message"] to capture request response codes and messages.  Fixed ###.new URI parameter passing for requests
+that do not contain a parameter.
+
+- - -
+
 0.1.3
 -----
 - stajkowski - Fixed URI parse for parameters.  Now you can include www.mysite.com/gethosts?api_key=123 URL parameters and they will be passed.  Added post_json option to post post_data as json; default

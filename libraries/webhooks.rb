@@ -16,8 +16,11 @@ class Chef::Provider::LWRPBase
 
       #Create URI
       uri = URI.parse(return_uri)
-      new_query_ar = URI.decode_www_form(uri.query || '') #extract our parameters
-      uri.query = URI.encode_www_form(new_query_ar) #encode our findings
+      if url_uri.include? "?" #if our original uri contains parameters, extract and encode
+        Chef::Log.info("Encoding parameters for: #{ url_uri }")
+        new_query_ar = URI.decode_www_form(uri.query || '') #extract our parameters
+        uri.query = URI.encode_www_form(new_query_ar) #encode our findings
+      end
 
       #Check if we have get params to send off
       if action == "get" && !post_data.nil?
@@ -44,14 +47,14 @@ class Chef::Provider::LWRPBase
           #Check what type of request
           case action
             when "post"
-              Chef::Log.info "Setting up action #{ action }."
-              req = Net::HTTP::Post.new(uri)   #let's post
+              Chef::Log.info "Setting up action #{ action }: #{ uri.path + ( uri.query != nil ? ('?' + uri.query) : '' )  }."
+              req = Net::HTTP::Post.new(uri + ( uri.query != nil ? ('?' + uri.query) : '' ) )   #let's post
             when "put"
-              Chef::Log.info "Setting up action #{ action }."
-              req = Net::HTTP::Put.new(uri)    #let's put
+              Chef::Log.info "Setting up action #{ action }: #{ uri.path + ( uri.query != nil ? ('?' + uri.query) : '' ) }."
+              req = Net::HTTP::Put.new(uri.path + ( uri.query != nil ? ('?' + uri.query) : '' ) )    #let's put
             when "get"
-              Chef::Log.info "Setting up action #{ action }."
-              req = Net::HTTP::Get.new(uri)    #let's get
+              Chef::Log.info "Setting up action #{ action }: #{ uri.path + ( uri.query != nil ? ('?' + uri.query) : '' ) }."
+              req = Net::HTTP::Get.new(uri.path + ( uri.query != nil ? ('?' + uri.query) : '' ))    #let's get
           end
 
           #Check if we are going to use basic auth

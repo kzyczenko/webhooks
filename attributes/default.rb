@@ -1,4 +1,7 @@
 #Default Attributes
-default["webhooks"]["get_response"] = ""
-default["webhooks"]["put_response"] = ""
-default["webhooks"]["post_response"] = ""
+default["webhooks"]["get_response"] = nil
+default["webhooks"]["put_response"] = nil
+default["webhooks"]["post_response"] = nil
+
+default["webhooks"]["response_code"] = nil
+default["webhooks"]["response_message"] = nil
