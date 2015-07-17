@@ -1,6 +1,12 @@
 webhooks CHANGELOG
 ==================
 
+0.2.1
+-----
+- stajkowski - PipeTest
+
+- - -
+
 0.2.0
 -----
 - stajkowski - Added to attributes default["webhooks"]["response_code"] and default["webhooks"]["response_message"] to capture request response codes and messages.  Fixed ###.new URI parameter passing for requests
