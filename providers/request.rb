@@ -50,7 +50,7 @@ end
 
 #Must load current resource state - nothing current
 def load_current_resource
-  @current_resource = Chef::Resource::WebhooksRequest.new(@new_resource.name)
+  @current_resource = Chef::Resource.resource_for_node(:webhooks_request,node).new(@new_resource.name)
 
   #Not Used
 	@current_resource.operation_name(@new_resource.operation_name)
